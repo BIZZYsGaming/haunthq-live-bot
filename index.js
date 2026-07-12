@@ -355,6 +355,39 @@ Click **✅ I Agree** below to verify and unlock the server.`);
     }
 
     // ==========================
+    // !notify
+    // ==========================
+
+    if (message.content.toLowerCase() === "!notify") {
+
+        const embed = new EmbedBuilder()
+            .setColor(0xFF0000)
+            .setTitle("🔔 Live Notifications")
+            .setDescription(`Want to know whenever **Bizzy** goes live on Twitch?
+
+Click the button below to receive live stream notifications.
+
+Click it again at any time to stop receiving notifications.`);
+
+        const button = new ButtonBuilder()
+            .setCustomId("live_notifications")
+            .setLabel("🔴 Notify Me")
+            .setStyle(ButtonStyle.Danger);
+
+        const row = new ActionRowBuilder()
+            .addComponents(button);
+
+        await message.channel.send({
+            embeds: [embed],
+            components: [row]
+        });
+
+        console.log("🔔 Notification message posted.");
+
+        return;
+    }
+
+    // ==========================
     // !testlive
     // ==========================
 
@@ -408,6 +441,10 @@ client.on("interactionCreate", async (interaction) => {
 
     if (!interaction.isButton()) return;
 
+    // ==========================
+    // VERIFY BUTTON
+    // ==========================
+
     if (interaction.customId === "agree_rules") {
 
         const member = interaction.member;
@@ -430,6 +467,40 @@ client.on("interactionCreate", async (interaction) => {
         });
 
         console.log(`${interaction.user.tag} verified.`);
+
+        return;
+
+    }
+
+    // ==========================
+    // LIVE NOTIFICATIONS BUTTON
+    // ==========================
+
+    if (interaction.customId === "live_notifications") {
+
+        const member = interaction.member;
+
+        if (member.roles.cache.has(LIVE_ROLE_ID)) {
+
+            await member.roles.remove(LIVE_ROLE_ID);
+
+            await interaction.reply({
+                content: "🔕 Live notifications disabled.",
+                ephemeral: true
+            });
+
+            return;
+
+        }
+
+        await member.roles.add(LIVE_ROLE_ID);
+
+        await interaction.reply({
+            content: "🔔 You'll now be notified when Bizzy goes live!",
+            ephemeral: true
+        });
+
+        console.log(`${interaction.user.tag} toggled live notifications.`);
 
     }
 
