@@ -23,6 +23,7 @@ const CHANNEL_ID = process.env.CHANNEL_ID;
 const GHOST_ROLE_ID = process.env.GHOST_ROLE_ID;
 const LIVE_ROLE_ID = process.env.LIVE_ROLE_ID;
 const WELCOME_CHANNEL_ID = process.env.WELCOME_CHANNEL_ID;
+const MOD_LOG_CHANNEL_ID = process.env.MOD_LOG_CHANNEL_ID;
 
 // =====================================
 // CHECK ENVIRONMENT VARIABLES
@@ -535,7 +536,30 @@ client.on("interactionCreate", async (interaction) => {
             ephemeral: true
         });
 
-        console.log(`${interaction.user.tag} verified.`);
+        const logChannel = await client.channels.fetch(MOD_LOG_CHANNEL_ID);
+
+const hasNotifications = member.roles.cache.has(LIVE_ROLE_ID);
+
+const logEmbed = new EmbedBuilder()
+    .setColor(0x9146FF)
+    .setTitle("📋 Member Verification")
+    .setDescription(
+`${hasNotifications ? "✅ Rules agreed to\n✅ HQ Ghosts role given\n🔔 Live Notifications enabled" : "✅ Rules agreed to\n✅ HQ Ghosts role given"}
+
+👤 **User:** ${interaction.user}
+
+🆔 **User ID:** ${interaction.user.id}`
+    )
+    .setFooter({
+        text: "The HQ • Powered by HQBot"
+    })
+    .setTimestamp();
+
+await logChannel.send({
+    embeds: [logEmbed]
+});
+
+console.log(`${interaction.user.tag} verified.`);
 
         return;
 
@@ -553,10 +577,26 @@ client.on("interactionCreate", async (interaction) => {
 
             await member.roles.remove(LIVE_ROLE_ID);
 
-            await interaction.reply({
-                content: "🔕 Live notifications disabled.",
-                ephemeral: true
-            });
+const logChannel = await client.channels.fetch(MOD_LOG_CHANNEL_ID);
+
+const logEmbed = new EmbedBuilder()
+    .setColor(0x9146FF)
+    .setTitle("🔔 Notification Preference Updated")
+    .setDescription(
+`👤 **User:** ${interaction.user}
+
+🆔 **User ID:** ${interaction.user.id}
+
+❌ Live Notifications disabled`
+    )
+    .setFooter({
+        text: "The HQ • Powered by HQBot"
+    })
+    .setTimestamp();
+
+await logChannel.send({
+    embeds: [logEmbed]
+});
 
             return;
 
@@ -564,10 +604,26 @@ client.on("interactionCreate", async (interaction) => {
 
         await member.roles.add(LIVE_ROLE_ID);
 
-        await interaction.reply({
-            content: "🔔 You'll now be notified when Bizzy goes live!",
-            ephemeral: true
-        });
+const logChannel = await client.channels.fetch(MOD_LOG_CHANNEL_ID);
+
+const logEmbed = new EmbedBuilder()
+    .setColor(0x9146FF)
+    .setTitle("🔔 Notification Preference Updated")
+    .setDescription(
+`👤 **User:** ${interaction.user}
+
+🆔 **User ID:** ${interaction.user.id}
+
+✅ Live Notifications enabled`
+    )
+    .setFooter({
+        text: "The HQ • Powered by HQBot"
+    })
+    .setTimestamp();
+
+await logChannel.send({
+    embeds: [logEmbed]
+});
 
         console.log(`${interaction.user.tag} toggled live notifications.`);
 
