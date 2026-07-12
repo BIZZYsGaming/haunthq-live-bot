@@ -21,6 +21,9 @@ const TWITCH_CLIENT_SECRET = process.env.TWITCH_CLIENT_SECRET;
 const TWITCH_USERNAME = process.env.TWITCH_USERNAME;
 const CHANNEL_ID = process.env.CHANNEL_ID;
 
+const GHOST_ROLE_ID = process.env.GHOST_ROLE_ID;
+const LIVE_ROLE_ID = process.env.LIVE_ROLE_ID;
+
 // =====================================
 // CHECK ENVIRONMENT VARIABLES
 // =====================================
@@ -51,13 +54,14 @@ for (const [name, value] of Object.entries(required)) {
 
 const client = new Client({
 
-    intents: [
+intents: [
 
-        GatewayIntentBits.Guilds,
-        GatewayIntentBits.GuildMessages,
-        GatewayIntentBits.MessageContent
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMembers,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.MessageContent
 
-    ]
+]
 
 });
 
@@ -266,6 +270,41 @@ client.on("messageCreate", async (message) => {
 
     if (message.author.bot) return;
 
+    const OWNER_ID = "298019447686561792";
+
+    if (message.author.id !== OWNER_ID) return;
+
+    // ==========================
+    // !rules
+    // ==========================
+
+    if (message.content.toLowerCase() === "!rules") {
+
+        const embed = new EmbedBuilder()
+            .setColor(0x9146FF)
+            .setTitle("📜 Welcome to The HQ")
+            .setDescription(`Before you can access the server, please read the rules.
+
+Click **✅ I Agree** below to verify and unlock the server.`);
+
+        const button = new ButtonBuilder()
+            .setCustomId("agree_rules")
+            .setLabel("✅ I Agree")
+            .setStyle(ButtonStyle.Success);
+
+        const row = new ActionRowBuilder()
+            .addComponents(button);
+
+        await message.channel.send({
+            embeds: [embed],
+            components: [row]
+        });
+
+        console.log("📜 Rules posted.");
+
+        return;
+    }
+
     // ==========================
     // !botstatus
     // ==========================
@@ -283,6 +322,7 @@ client.on("messageCreate", async (message) => {
 
         console.log("✅ !botstatus");
 
+        return;
     }
 
     // ==========================
@@ -320,14 +360,13 @@ client.on("messageCreate", async (message) => {
             .addComponents(button);
 
         await channel.send({
-
             embeds: [embed],
             components: [row]
-
         });
 
         console.log("🧪 Test notification sent.");
 
+        return;
     }
 
 });
