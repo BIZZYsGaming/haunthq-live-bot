@@ -20,9 +20,9 @@ const TWITCH_CLIENT_ID = process.env.TWITCH_CLIENT_ID;
 const TWITCH_CLIENT_SECRET = process.env.TWITCH_CLIENT_SECRET;
 const TWITCH_USERNAME = process.env.TWITCH_USERNAME;
 const CHANNEL_ID = process.env.CHANNEL_ID;
-
 const GHOST_ROLE_ID = process.env.GHOST_ROLE_ID;
 const LIVE_ROLE_ID = process.env.LIVE_ROLE_ID;
+const WELCOME_CHANNEL_ID = process.env.WELCOME_CHANNEL_ID;
 
 // =====================================
 // CHECK ENVIRONMENT VARIABLES
