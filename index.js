@@ -440,6 +440,43 @@ Click it again at any time to stop receiving notifications.`);
 });
 
 // =====================================
+// WELCOME NEW MEMBERS
+// =====================================
+
+client.on("guildMemberAdd", async (member) => {
+
+    const channel = await client.channels.fetch(WELCOME_CHANNEL_ID);
+
+    if (!channel) return;
+
+    const embed = new EmbedBuilder()
+        .setColor(0x9146FF)
+        .setTitle("👋 Welcome to The HQ!")
+        .setDescription(
+`Welcome ${member}!
+
+Please follow the steps below to gain access to **The HQ**.
+
+**1️⃣ Head over to** 📜 **rules**, read through them, then click the **✅ I Agree** button.
+
+**2️⃣ Next, head over to** 🎭 **roles** and click the **✅ I Agree** button to receive your **HQ Ghosts** role and unlock the rest of the server.
+
+**3️⃣ Finally, head over to** 🔔 **notify-me** and click the **🔴 Notify Me** button if you'd like to be alerted whenever I go live on Twitch.
+
+That's it! Have fun, enjoy your stay, and if you need any help, feel free to DM me or contact a moderator. 💜`
+        )
+        .setTimestamp();
+
+    await channel.send({
+        content: `${member}`,
+        embeds: [embed]
+    });
+
+    console.log(`${member.user.tag} joined the server.`);
+
+});
+
+// =====================================
 // BUTTONS
 // =====================================
 
