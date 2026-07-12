@@ -401,6 +401,41 @@ Click **✅ I Agree** below to verify and unlock the server.`);
 });
 
 // =====================================
+// BUTTONS
+// =====================================
+
+client.on("interactionCreate", async (interaction) => {
+
+    if (!interaction.isButton()) return;
+
+    if (interaction.customId === "agree_rules") {
+
+        const member = interaction.member;
+
+        if (member.roles.cache.has(GHOST_ROLE_ID)) {
+
+            await interaction.reply({
+                content: "✅ You're already verified!",
+                ephemeral: true
+            });
+
+            return;
+        }
+
+        await member.roles.add(GHOST_ROLE_ID);
+
+        await interaction.reply({
+            content: "👻 Welcome to **The HQ**! You now have access to the server.",
+            ephemeral: true
+        });
+
+        console.log(`${interaction.user.tag} verified.`);
+
+    }
+
+});
+
+// =====================================
 // LOGIN
 // =====================================
 
