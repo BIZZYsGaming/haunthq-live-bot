@@ -24,6 +24,16 @@ const GHOST_ROLE_ID = process.env.GHOST_ROLE_ID;
 const LIVE_ROLE_ID = process.env.LIVE_ROLE_ID;
 const WELCOME_CHANNEL_ID = process.env.WELCOME_CHANNEL_ID;
 const MOD_LOG_CHANNEL_ID = process.env.MOD_LOG_CHANNEL_ID;
+const COUNTING_CHANNEL_ID = process.env.COUNTING_CHANNEL_ID;
+const EMOJI_LIST = process.env.EMOJI_LIST;
+
+// =====================================
+// COUNTING VARIABLES
+// =====================================
+
+let expected = 1;
+let lastUserId = null;
+let readyToCount = false;
 
 // =====================================
 // CHECK ENVIRONMENT VARIABLES
@@ -73,6 +83,146 @@ intents: [
 let twitchToken = "";
 let streamLive = false;
 let lastStreamTitle = "";
+
+// =====================================
+// COUNTING EMOJIS
+// =====================================
+
+// Accepts:
+// <:name:id>
+// name:id
+// or just the emoji ID
+function parseEmojiList(raw) {
+
+    if (!raw) return [];
+
+    return raw
+        .split(",")
+        .map(s => s.trim())
+        .filter(Boolean)
+        .map(item => {
+
+            const match = item.match(/<a?:[A-Za-z0-9_]+:(\d+)>/);
+
+            if (match) return { id: match[1] };
+
+            if (/^\d+$/.test(item)) return { id: item };
+
+            return null;
+
+        })
+        .filter(Boolean);
+
+}
+
+function pickRandomEmojiId(arr) {
+
+    if (!arr.length) return null;
+
+    return arr[Math.floor(Math.random() * arr.length)].id;
+
+}
+
+const EMOJIS = parseEmojiList(EMOJI_LIST);
+
+// =====================================
+// STRICT NUMBER CHECK
+// =====================================
+
+function parseStrictInt(content) {
+
+    if (!content) return null;
+
+    const s = content.trim();
+
+    if (!/^\d+$/.test(s)) return null;
+
+    const n = Number(s);
+
+    if (!Number.isSafeInteger(n)) return null;
+
+    return n;
+
+}
+
+// =====================================
+// RESET COUNT
+// =====================================
+
+const WRONG_TEXT = "^ Wrong number fuckwit start again you fucken dumb cunt\n0";
+
+async function resetToOne(channel) {
+
+    await channel.send(WRONG_TEXT).catch(() => {});
+
+    expected = 1;
+    lastUserId = null;
+
+}
+
+// =====================================
+// RECOVER COUNT
+// =====================================
+
+async function recoverState() {
+
+    const channel = await client.channels
+        .fetch(COUNTING_CHANNEL_ID)
+        .catch(() => null);
+
+    if (!channel || !channel.isTextBased()) {
+
+        console.log("⚠️ Counting channel not found.");
+
+        expected = 1;
+        lastUserId = null;
+        readyToCount = true;
+
+        return;
+
+    }
+
+    const fetched = await channel.messages
+        .fetch({ limit: 200 })
+        .catch(() => null);
+
+    if (!fetched) {
+
+        expected = 1;
+        lastUserId = null;
+        readyToCount = true;
+
+        return;
+
+    }
+
+    const messages = [...fetched.values()];
+
+    for (const message of messages) {
+
+        if (message.author.bot) continue;
+
+        const number = parseStrictInt(message.content);
+
+        if (number === null) continue;
+
+        expected = number + 1;
+        lastUserId = message.author.id;
+        readyToCount = true;
+
+        console.log(`🔢 Recovered count: ${number}`);
+
+        return;
+
+    }
+
+    expected = 1;
+    lastUserId = null;
+    readyToCount = true;
+
+    console.log("🔢 Starting count at 1.");
+
+}
 
 // =====================================
 // TWITCH LOGIN
@@ -258,6 +408,19 @@ client.once("clientReady", async () => {
     console.log("========================================");
     console.log(`✅ Logged in as ${client.user.tag}`);
 
+    // ==========================
+    // COUNTING BOT
+    // ==========================
+
+    console.log(`🔢 Counting Channel: ${COUNTING_CHANNEL_ID}`);
+    console.log(`😀 Loaded ${EMOJIS.length} counting emoji(s)`);
+
+    await recoverState();
+
+    // ==========================
+    // TWITCH BOT
+    // ==========================
+
     await getTwitchToken();
 
     console.log("🚀 Twitch Monitoring Started");
@@ -275,6 +438,57 @@ client.once("clientReady", async () => {
 client.on("messageCreate", async (message) => {
 
     if (message.author.bot) return;
+
+        // ==========================
+    // GHOST COUNT
+    // ==========================
+
+    if (readyToCount && message.channelId === COUNTING_CHANNEL_ID) {
+
+        const hasAttachments = (message.attachments?.size || 0) > 0;
+        const hasEmbeds = (message.embeds?.length || 0) > 0;
+
+        const number = parseStrictInt(message.content);
+
+        // Wrong message (text, emoji, image, etc.)
+        if (hasAttachments || hasEmbeds || number === null) {
+
+            await resetToOne(message.channel);
+            return;
+
+        }
+
+        // Same person twice
+        if (lastUserId && message.author.id === lastUserId) {
+
+            await resetToOne(message.channel);
+            return;
+
+        }
+
+        // Wrong number
+        if (number !== expected) {
+
+            await resetToOne(message.channel);
+            return;
+
+        }
+
+        // Correct number
+        lastUserId = message.author.id;
+        expected++;
+
+        const emojiId = pickRandomEmojiId(EMOJIS);
+
+        if (emojiId) {
+
+            await message.react(emojiId).catch(() => {});
+
+        }
+
+        return;
+
+    }
 
     const OWNER_ID = "298019447686561792";
 
