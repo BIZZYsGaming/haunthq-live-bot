@@ -326,6 +326,35 @@ Click **✅ I Agree** below to verify and unlock the server.`);
     }
 
     // ==========================
+    // !verify
+    // ==========================
+
+    if (message.content.toLowerCase() === "!verify") {
+
+        const embed = new EmbedBuilder()
+            .setColor(0x57F287)
+            .setTitle("✅ Verification")
+            .setDescription(`Click **✅ I Agree** below to verify you've read the rules and unlock access to **The HQ**.`);
+
+        const button = new ButtonBuilder()
+            .setCustomId("agree_rules")
+            .setLabel("✅ I Agree")
+            .setStyle(ButtonStyle.Success);
+
+        const row = new ActionRowBuilder()
+            .addComponents(button);
+
+        await message.channel.send({
+            embeds: [embed],
+            components: [row]
+        });
+
+        console.log("✅ Verification message posted.");
+
+        return;
+    }
+
+    // ==========================
     // !testlive
     // ==========================
 
