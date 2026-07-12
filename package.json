@@ -1,0 +1,20 @@
+{
+  "name": "haunthq-live-bot",
+  "version": "1.0.0",
+  "description": "Discord bot that announces when HauntHQ goes live on Twitch.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "author": "Biz + ChatGPT",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "discord.js": "^14.21.0",
+    "dotenv": "^16.6.1",
+    "express": "^4.21.2",
+    "node-fetch": "^2.7.0"
+  }
+}
