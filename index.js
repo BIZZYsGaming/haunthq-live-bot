@@ -482,14 +482,18 @@ client.on("messageCreate", async (message) => {
 
         if (emojiId) {
 
-            await message.react(emojiId).catch(() => {});
+            await message.react(emojiId).catch((e) => {
+
+                console.error("React failed:", e?.message || e);
+                console.error("Emoji ID used:", emojiId);
+
+            });
 
         }
 
         return;
 
     }
-
     const OWNER_ID = "298019447686561792";
 
     if (message.author.id !== OWNER_ID) return;
