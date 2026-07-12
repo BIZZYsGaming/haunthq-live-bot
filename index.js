@@ -222,6 +222,8 @@ const embed = new EmbedBuilder()
 
         await channel.send({
 
+            content: `<@&${LIVE_ROLE_ID}>`,
+
             embeds: [embed],
             components: [row]
 
@@ -422,8 +424,12 @@ Click it again at any time to stop receiving notifications.`);
             .addComponents(button);
 
         await channel.send({
+
+            content: `<@&${LIVE_ROLE_ID}>`,
+
             embeds: [embed],
             components: [row]
+
         });
 
         console.log("🧪 Test notification sent.");
