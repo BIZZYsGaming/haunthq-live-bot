@@ -210,7 +210,10 @@ const embed = new EmbedBuilder()
     .setFooter({
         text: "HauntHQ • Twitch Live Notification"
     })
-    .setTimestamp();
+            .setFooter({
+                text: "The HQ • Powered by HQBot"
+            })
+            .setTimestamp();
 
         const button = new ButtonBuilder()
             .setLabel("Watch Stream")
@@ -334,7 +337,7 @@ Click **✅ I Agree** below to verify and unlock the server.`);
     if (message.content.toLowerCase() === "!verify") {
 
         const embed = new EmbedBuilder()
-            .setColor(0x57F287)
+            .setColor(0x9146FF)
             .setTitle("✅ Verification")
             .setDescription(`Click **✅ I Agree** below to verify you've read the rules and unlock access to **The HQ**.`);
 
@@ -363,7 +366,7 @@ Click **✅ I Agree** below to verify and unlock the server.`);
     if (message.content.toLowerCase() === "!notify") {
 
         const embed = new EmbedBuilder()
-            .setColor(0xFF0000)
+            .setColor(0x9146FF)
             .setTitle("🔔 Live Notifications")
             .setDescription(`Want to know whenever **Bizzy** goes live on Twitch?
 
@@ -413,6 +416,9 @@ Click it again at any time to stop receiving notifications.`);
                     inline: false
                 }
             )
+            .setFooter({
+                text: "The HQ • Powered by HQBot"
+            })
             .setTimestamp();
 
         const button = new ButtonBuilder()
@@ -465,12 +471,32 @@ Please follow the steps below to gain access to **The HQ**.
 
 That's it! Have fun, enjoy your stay, and if you need any help, feel free to DM me or contact a moderator. 💜`
         )
-        .setTimestamp();
+            .setFooter({
+                text: "The HQ • Powered by HQBot"
+            })
+            .setTimestamp();
 
-    await channel.send({
+    const welcomeMessage = await channel.send({
         content: `${member}`,
         embeds: [embed]
     });
+
+    // Delete the welcome message after 24 hours
+    setTimeout(async () => {
+
+        try {
+
+            await welcomeMessage.delete();
+
+            console.log(`🗑️ Deleted welcome message for ${member.user.tag}`);
+
+        } catch (err) {
+
+            console.log("🗑️ Welcome message already deleted.");
+
+        }
+
+    }, 12 * 60 * 60 * 1000);
 
     console.log(`${member.user.tag} joined the server.`);
 
