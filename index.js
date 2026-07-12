@@ -572,64 +572,79 @@ console.log(`${interaction.user.tag} verified.`);
     if (interaction.customId === "live_notifications") {
 
         const member = interaction.member;
+        const logChannel = await client.channels.fetch(MOD_LOG_CHANNEL_ID);
+
+        // ==========================
+        // REMOVE ROLE
+        // ==========================
 
         if (member.roles.cache.has(LIVE_ROLE_ID)) {
 
             await member.roles.remove(LIVE_ROLE_ID);
 
-const logChannel = await client.channels.fetch(MOD_LOG_CHANNEL_ID);
-
-const logEmbed = new EmbedBuilder()
-    .setColor(0x9146FF)
-    .setTitle("🔔 Notification Preference Updated")
-    .setDescription(
+            const logEmbed = new EmbedBuilder()
+                .setColor(0x9146FF)
+                .setTitle("🔕 Notification Preference Updated")
+                .setDescription(
 `👤 **User:** ${interaction.user}
 
 🆔 **User ID:** ${interaction.user.id}
 
 ❌ Live Notifications disabled`
-    )
-    .setFooter({
-        text: "The HQ • Powered by HQBot"
-    })
-    .setTimestamp();
+                )
+                .setFooter({
+                    text: "The HQ • Powered by HQBot"
+                })
+                .setTimestamp();
 
-await logChannel.send({
-    embeds: [logEmbed]
-});
+            await logChannel.send({
+                embeds: [logEmbed]
+            });
+
+            await interaction.reply({
+                content: "🔕 Live notifications disabled.",
+                ephemeral: true
+            });
+
+            console.log(`${interaction.user.tag} disabled live notifications.`);
 
             return;
 
         }
 
+        // ==========================
+        // ADD ROLE
+        // ==========================
+
         await member.roles.add(LIVE_ROLE_ID);
 
-const logChannel = await client.channels.fetch(MOD_LOG_CHANNEL_ID);
-
-const logEmbed = new EmbedBuilder()
-    .setColor(0x9146FF)
-    .setTitle("🔔 Notification Preference Updated")
-    .setDescription(
+        const logEmbed = new EmbedBuilder()
+            .setColor(0x9146FF)
+            .setTitle("🔔 Notification Preference Updated")
+            .setDescription(
 `👤 **User:** ${interaction.user}
 
 🆔 **User ID:** ${interaction.user.id}
 
 ✅ Live Notifications enabled`
-    )
-    .setFooter({
-        text: "The HQ • Powered by HQBot"
-    })
-    .setTimestamp();
+            )
+            .setFooter({
+                text: "The HQ • Powered by HQBot"
+            })
+            .setTimestamp();
 
-await logChannel.send({
-    embeds: [logEmbed]
-});
+        await logChannel.send({
+            embeds: [logEmbed]
+        });
 
-        console.log(`${interaction.user.tag} toggled live notifications.`);
+        await interaction.reply({
+            content: "🔔 You'll now be notified whenever Bizzy goes live!",
+            ephemeral: true
+        });
+
+        console.log(`${interaction.user.tag} enabled live notifications.`);
 
     }
-
-});
 
 // =====================================
 // LOGIN
